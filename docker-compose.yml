@@ -1,0 +1,36 @@
+services:
+  # Builds the sandbox base image once; the reviewer launches containers from it.
+  # `docker compose build` builds it; it exits immediately when started, which is expected.
+  sandbox-image:
+    build: ./sandbox
+    image: code-review-sandbox:latest
+    command: ["true"]
+
+  reviewer:
+    build: .
+    env_file: .env
+    environment:
+      CHROMA_PATH: /data/chroma
+      WORKSPACE_DIR: /data/workspaces
+      SANDBOX_IMAGE: code-review-sandbox:latest
+    ports:
+      - "8000:8000"
+    volumes:
+      - reviewer-data:/data
+      # Lets the reviewer start sibling sandbox containers on the host daemon.
+      # SECURITY: access to the Docker socket is root-equivalent on the host. Acceptable for a
+      # dev/demo box; in production run sandboxes on a separate host or use a rootless runtime
+      # (gVisor / Firecracker / Kata) behind a narrow API.
+      - /var/run/docker.sock:/var/run/docker.sock
+    group_add:
+      - "${DOCKER_GID:-0}"
+    depends_on:
+      sandbox-image:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz')"]
+      interval: 30s
+      timeout: 5s
+
+volumes:
+  reviewer-data:

@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "multi-agent-reviewer"
+version = "0.1.0"
+description = "Multi-agent GitHub PR reviewer with repo-aware RAG and sandbox-verified findings"
+requires-python = ">=3.11"
+dependencies = [
+    "anthropic>=1.0",
+    "google-genai>=1.30",
+    "langgraph>=0.2",
+    "langchain-core>=0.3",
+    "chromadb>=0.5",
+    "PyGithub>=2.3",
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.29",
+    "docker>=7.0",
+    "pydantic>=2.6",
+    "pydantic-settings>=2.2",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "httpx>=0.27", "ruff>=0.4"]
+
+[project.scripts]
+reviewer = "reviewer.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"

@@ -1,0 +1,10 @@
+# Benchmark configuration.
+# Small, pure-Python libraries with fast test suites work best: the sandbox has to install them
+# and run their tests twice (base + head) per case.
+repos:
+  - pallets/click
+  - psf/requests
+  - python-attrs/attrs
+  - marshmallow-code/marshmallow
+cases_per_repo: 5          # N = cases_per_repo * len(repos) = 20
+clone_dir: data/bench_clones
